@@ -4,7 +4,7 @@ An application to scan pastbin, cache results, scan items, and hopefully identif
 **This solution assumes a pastebin pro subscription with a whitelist configuration**
 
 ## Stack : 
-ASP.NET Core 2.0/2.1 Console Application
+ASP.NET Core 2.0/2.1 : Console Application 
 MongoDB Backend Database
 
 ## Dependencies 
