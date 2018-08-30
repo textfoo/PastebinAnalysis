@@ -20,4 +20,10 @@
     <ProjectReference Include="..\services\WebServices\PastebinService\PastebinService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Config\app-settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
