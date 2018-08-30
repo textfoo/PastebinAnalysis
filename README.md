@@ -24,8 +24,10 @@ MongoDB Backend Database
 
 ## Internal Dependencies
 *HttpService.csproj* 
-> Manages Http connections
-*MongoDB*
-> Manages database context
-*PastebinService*
+> Manages Http connections 
+
+*MongoDB.csproj*
+> Manages database context 
+
+*PastebinService.csproj*
 > Manages functions related to Pastebin (contains dependency to HttpService) 
