@@ -3,13 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastebinAnalysis", "PastebinAnalysis\PastebinAnalysis.csproj", "{5E889810-004D-4F70-B44B-C5D9DEC1D15C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PastebinAnalysis", "PastebinAnalysis\PastebinAnalysis.csproj", "{5E889810-004D-4F70-B44B-C5D9DEC1D15C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpService", "services\WebServices\HttpService\HttpService.csproj", "{970FC5A3-4402-425F-B13C-C5FD8EB2BA37}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB", "services\DatabaseServices\MongoDB\MongoDB.csproj", "{3BC8EC6A-D183-497C-A125-3C8184E2A7B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastebinService", "services\WebServices\PastebinService\PastebinService.csproj", "{1DFB2D3B-CCFC-40F1-AA92-A1F9382CFB3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PastebinService", "services\WebServices\PastebinService\PastebinService.csproj", "{1DFB2D3B-CCFC-40F1-AA92-A1F9382CFB3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{7492D481-6305-4980-8B81-BE64AC38D3DD}"
+	ProjectSection(SolutionItems) = preProject
+		tag_analysis.js = tag_analysis.js
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

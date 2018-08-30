@@ -36,7 +36,7 @@ namespace PastebinAnalysis
             services.Configure<MongoDBService.Config.MongoDBSettings>(configuration.GetSection("MongoDBSettings"));
             services.Configure<PastbinSettings>(configuration.GetSection("PastebinSettings"));
 
-            services.AddTransient<IMongoDBService, MongoDBService.Services.MongoDBService>();
+            services.AddSingleton<IMongoDBService, MongoDBService.Services.MongoDBService>();
             services.AddScoped<IHttpService, HttpService.Services.HttpService>();
             services.AddScoped<IPastebinService, PastebinService.Services.PastebinService>();
             services.AddSingleton<IPastebinAnalyzerService, PastebinService.Services.PastebinAnalyzerService>();

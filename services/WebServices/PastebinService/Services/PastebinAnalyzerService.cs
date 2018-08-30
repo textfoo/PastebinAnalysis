@@ -4,33 +4,45 @@ using System.Threading.Tasks;
 using System.Linq;
 using PastebinService.Interfaces;
 using PastebinService.Models;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace PastebinService.Services
 {
     public class PastebinAnalyzerService : IPastebinAnalyzerService
     {
+        private readonly IMongoDBService _mongo;
+        private readonly ILogger<PastebinAnalyzerService> _log; 
         private List<TagAnalysisTemplateModel> _tagTemplates;
 
-        private readonly IMongoDBService _mongo;
+        
 
-        public PastebinAnalyzerService(IMongoDBService mongo)
+        public PastebinAnalyzerService(IMongoDBService mongo, ILogger<PastebinAnalyzerService> log)
         {
             _mongo = mongo;
+            _log = log; 
         }
 
         public async Task<string[]> ParallelTagAnalysis(string input)
         {
             List<Task<string>> tasks = new List<Task<string>>();
-            _tagTemplates.ForEach(x =>
+            try
             {
-                switch (x.Action)
+                _tagTemplates.ForEach(x =>
                 {
-                    case "contains":
-                        tasks.Add(TagTemplateContainsAction(input, x));
-                        break;
-                }
+                    switch (x.Action)
+                    {
+                        case "contains":
+                            tasks.Add(TagTemplateContainsAction(input, x));
+                            break;
+                    }
+                });
+            }
+            catch(Exception ex)
+            {
 
-            });
+            }
+
             var response = await Task.WhenAll(tasks);
             return response.Where(x => !string.IsNullOrEmpty(x)).ToArray();
         }
