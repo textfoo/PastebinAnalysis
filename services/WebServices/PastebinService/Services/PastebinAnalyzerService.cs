@@ -6,6 +6,8 @@ using PastebinService.Interfaces;
 using PastebinService.Models;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PastebinService.Services
 {
@@ -15,7 +17,14 @@ namespace PastebinService.Services
         private readonly ILogger<PastebinAnalyzerService> _log; 
         private List<TagAnalysisTemplateModel> _tagTemplates;
 
-        
+        public string MD5Hash(string input)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                var hasBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+                return string.Concat(hasBytes.Select(x => x.ToString("X2"))); 
+            }
+        }
 
         public PastebinAnalyzerService(IMongoDBService mongo, ILogger<PastebinAnalyzerService> log)
         {

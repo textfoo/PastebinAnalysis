@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDBService.Interfaces;
 using PastebinService.Interfaces;
 using PastebinService.Models;
@@ -18,7 +19,9 @@ namespace PastebinAnalysis
         private readonly ILogger<App> _log;
 
         private static HashSet<string> _keyCache { get; set; } = new HashSet<string>();
-        private static List<PastebinObjectModel> cache { get; set; } = new List<PastebinObjectModel>(); 
+        private static HashSet<string> _hashCache { get; set; } = new HashSet<string>(); 
+
+        private static List<PastebinObjectModel> modelCache { get; set; } = new List<PastebinObjectModel>(); 
 
         public App(IMongoDBService mongo, IPastebinService pastebin, IPastebinAnalyzerService pba, ILogger<App> log)
         {
@@ -43,24 +46,31 @@ namespace PastebinAnalysis
                     await Task.Delay(5000); 
                     foreach(var feedItem in feed)
                     {
-                        if(!_keyCache.Contains(feedItem.Key))
+                        if (!_keyCache.Contains(feedItem.Key))
                         {
                             var pbRaw = await _pastebin.FetchSingle(feedItem.ScrapeUrl);
-                            _log.LogInformation($"Conducting Analysis on {feedItem.Title}, {feedItem.FullUrl}");
-                            var tags = await _pba.ParallelTagAnalysis(pbRaw);
-
-                            cache.Add(new PastebinObjectModel()
+                            var hash = _pba.MD5Hash(pbRaw);
+                            if (!_hashCache.Contains(hash))
                             {
-                                Id = ObjectId.GenerateNewId(),
-                                Title = feedItem.Title,
-                                Key = feedItem.Key,
-                                FullUrl = feedItem.FullUrl,
-                                ScrapeUrl = feedItem.ScrapeUrl,
-                                Size = feedItem.Size,
-                                Tags = tags,
-                                Contents = pbRaw
-                            });
-                            _keyCache.Add(feedItem.Key);
+                                _log.LogInformation($"Conducting Analysis on {hash} : {feedItem.Title}, {feedItem.FullUrl}");
+                                var tags = await _pba.ParallelTagAnalysis(pbRaw);
+
+                                modelCache.Add(new PastebinObjectModel()
+                                {
+                                    Id = ObjectId.GenerateNewId(),
+                                    Title = feedItem.Title,
+                                    Key = hash,
+                                    FullUrl = feedItem.FullUrl,
+                                    ScrapeUrl = feedItem.ScrapeUrl,
+                                    Size = feedItem.Size,
+                                    Tags = tags,
+                                    Contents = pbRaw
+                                });
+                                _keyCache.Add(feedItem.Key);
+                                _hashCache.Add(hash); 
+                            }
+                            else
+                                _log.LogInformation($"Ignoring {hash} : {feedItem.Title}, {feedItem.FullUrl}");
                             await Task.Delay(1500); 
                         }
                     }
@@ -73,9 +83,9 @@ namespace PastebinAnalysis
                 finally
                 {
                     _log.LogInformation("Caching...");
-                    if (cache.Count > 0)
-                        await _mongo.InsertMany("pastebin", "pastes", cache);
-                    cache.Clear();
+                    if (modelCache.Count > 0)
+                        await _mongo.InsertMany("pastebin", "pastes", modelCache);
+                    modelCache.Clear();
                     Console.Clear(); 
                 }
             }
@@ -91,7 +101,20 @@ namespace PastebinAnalysis
         {
             await _pba.Initialize();
             //need to add a function to instantiate the key cache
+            await FetchPastHashes(); 
         }
 
+        private async Task FetchPastHashes()
+        {
+            var col = _mongo.GetCollection<BsonDocument>("pastebin", "pastes");
+            var hashes = await col.Find(Builders<BsonDocument>.Filter.Empty)
+                .Project("{pb_key : 1}")
+                .Sort(new BsonDocument("pb_key", 1))
+                .ToListAsync();
+            hashes.ForEach(x =>
+            {
+                _hashCache.Add((string)x["pb_key"]);
+            }); 
+        }
     }
 }
